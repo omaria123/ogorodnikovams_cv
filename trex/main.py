@@ -1,12 +1,11 @@
 import cv2
-import mss.tools
+import mss
 import pyautogui
 import numpy as np
 import matplotlib.pyplot as plt
 import time
 
 pyautogui.PAUSE = .01
-pyautogui.FAILSAFE = True
 
 def fullscreen():
     with mss.mss() as sct:
