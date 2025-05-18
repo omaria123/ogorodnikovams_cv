@@ -8,28 +8,31 @@ import time
 pyautogui.PAUSE = .01
 
 def fullscreen():
-    with mss.mss() as sct:
-        sct_img = sct.grab(sct.monitors[0])
-        img = np.frombuffer(sct_img.rgb, dtype="uint8")
-        return img.reshape((sct_img.height, sct_img.width, 3))
-
-def part_of_screen(x, y, width, height):
-    with mss.mss() as sct:
-        monitor = {"top": y, "left": x, "width": width, "height": height}
-        sct_img = sct.grab(monitor)
-        img = np.frombuffer(sct_img.rgb, dtype="uint8")
-        return img.reshape((sct_img.height, sct_img.width, 3))
+    with mss.mss() as screenshot_tool:
+        screenshot = screenshot_tool.grab(screenshot_tool.monitors[0])
+        pixel_data = np.frombuffer(screenshot.rgb, dtype="uint8")
+        return pixel_data.reshape((screenshot.height, screenshot.width, 3))
+    
+def part_screen(x, y, width, height):
+    with mss.mss() as screenshot_tool:
+        safe_width = max(1, width)
+        safe_height = max(1, height)
+        capture_area = {"top": y, "left": x, "width": safe_width, "height": safe_height}
+        screenshot = screenshot_tool.grab(capture_area)
+        pixel_data = np.frombuffer(screenshot.rgb, dtype="uint8")
+        return pixel_data.reshape((screenshot.height, screenshot.width, 3))
     
 def get_bottom_y(img):
-    for i in range(img.shape[0]):
-        k = 0
-        for j in range(img.shape[1]):
-            if not img[i][j]:
-                k+=1
-                if k>200:
-                    return i
+    for y_coord in range(img.shape[0]): 
+        b_pixels = 0  
+        for x_coord in range(img.shape[1]):  
+            if not img[y_coord][x_coord]:  
+                b_pixels += 1
+                if b_pixels > 200:
+                    return y_coord  
             else:
-                k = 0
+                b_pixels = 0  
+
 def get_cactus_width(img):
     c_zone = img[-50:-15, 150:350]
     c_zone = c_zone.sum(axis=0)
